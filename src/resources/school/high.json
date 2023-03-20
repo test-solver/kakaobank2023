@@ -1,0 +1,39 @@
+{
+  dataSearch: {
+    content: [
+      {
+        schoolType: "일반고",
+        link: "http://gagog.gwe.hs.kr",
+        schoolGubun: "일반고",
+        adres: "강원도 삼척시 가곡면 가곡천로 1427, 가곡고등학교 (가곡면)",
+        schoolName: "가곡고등학교",
+        region: "강원도",
+        totalCount: "2376",
+        estType: "공립",
+        seq: "1"
+      },
+      {
+        schoolType: "일반고",
+        link: "http://garak.sen.hs.kr",
+        schoolGubun: "일반고",
+        adres: "서울특별시 송파구 송이로 42(송파동,가락고등학교)",
+        schoolName: "가락고등학교",
+        region: "서울특별시",
+        totalCount: "2376",
+        estType: "공립",
+        seq: "2"
+      },
+      {
+        schoolType: "일반고",
+        link: "http://garim.icehs.kr",
+        schoolGubun: "일반고",
+        adres: "인천광역시 서구 원적로 58(가좌동)",
+        schoolName: "가림고등학교",
+        region: "인천광역시",
+        totalCount: "2376",
+        estType: "공립",
+        seq: "3"
+      }
+    ]
+  }
+}

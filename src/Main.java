@@ -19,10 +19,11 @@ public class Main {
 
     public static LinkedHashMap<String, Objects> highSchoolMap = new LinkedHashMap<>();
     public static HashMap<String, Integer> resultMap = new HashMap<>();
-
     /**
      * 파일에서 문자열 읽어오기
      * 문자열에서 학교 명 찾아내기
+     * 
+     * TODO: 하양여중 -> 하양여 + 중학교로 바뀜 젠장
      */
     public static void main(String[] args) throws Exception {
 

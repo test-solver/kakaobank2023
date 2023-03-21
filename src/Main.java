@@ -1,5 +1,6 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
 import resources.vo.School;
+import util.PatternUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,116 +16,212 @@ import java.util.regex.Pattern;
 
 public class Main {
 
-    public  static List<School> shcoolListOri = new ArrayList<>();
-
-    public static LinkedHashMap<String, Objects> highSchoolMap = new LinkedHashMap<>();
-    public static HashMap<String, Integer> resultMap = new HashMap<>();
     /**
-     * 파일에서 문자열 읽어오기
-     * 문자열에서 학교 명 찾아내기
-     * 
+     * TODO :
+     *  1. 영 명 고등학교 -> 이거 유효한 학교이름이라고 봐야하나?
+     *  2. 학교 이름인거 같은 애들 모아서 보여주기
+     *      대가대 -> 대구가톨릭대학교
+     */
+
+    public static final int LENGTH_MAX_SCHOOL_NAME = 30; //우리나라 학교이름 최대길이 TODO : 커리어에서 가져와서 최대값을 할당해주는건?
+    public static Set<String> realSchoolSet = new HashSet<>(); //커리어넷에서 읽어온 진짜 학교
+
+    public static Set<School> schoolListOri = new HashSet<>();
+
+    public static HashMap<School, Integer> resultMap = new HashMap(); // 제시할 정답
+
+
+
+    private static void findInCarrerList(School school) {
+        // 일단 30글자로 자르기 (학교명이 30글자 이상인 경우는 없음)
+        String schoolName = school.getSchoolName();
+        int lengthSchoolName = schoolName.length();
+        if(lengthSchoolName >= LENGTH_MAX_SCHOOL_NAME){
+            schoolName = schoolName.substring(schoolName.length() - LENGTH_MAX_SCHOOL_NAME, schoolName.length());
+            school.setSchoolName(schoolName);
+            lengthSchoolName = LENGTH_MAX_SCHOOL_NAME;
+        }
+
+        // 뒤에서부터 한글자씩 늘려가며 일치하는 학교가 있나 검사
+        // 고영명고 -> 2개 (영명고, 고영명고)
+        int find = 0;
+        for (int i = 1; i < lengthSchoolName; i++) {
+            String str = schoolName.substring(schoolName.length() - i, schoolName.length());
+            school.setSchoolName(str);
+            if (existInResult(school)) {
+                plusSchoolCount(school);
+                find = 1;
+            } else if (existInRealSchool(school)) {
+                plusSchoolCount(school);
+                find = 1;
+            }
+        }
+        //해당 문자열이 학교가 아니라면?
+        //TODO : 예외 처리들 해주자. 한양여 중 -> 한양여자 중 으로 바꿔서 검사해볼것
+        if (find == 0) {
+
+        }
+
+    }
+
+    /**
+     * 우리나라 진짜 학교에 있는지 검사
+     * @param School (학교)ㄴ
+     */
+    private static boolean existInRealSchool(School school) {
+        return realSchoolSet.contains(school.getSchoolName() + school.getSchoolGubun().getGubunName());
+    }
+
+
+
+
+    /**
+     * 학교 회수 카운트 ++
+     * @param School (횟수를 늘릴 학교)
+     * */
+    private static void plusSchoolCount(School school) {
+        Integer cnt = resultMap.get(school);
+        cnt = cnt == null ? 0 : cnt;
+        cnt++;
+        resultMap.put(school, cnt);
+    }
+
+    /**
      * TODO: 하양여중 -> 하양여 + 중학교로 바뀜 젠장 하양여자 + 중학교로 바뀌어야할텐데...
      * 없다면 마지막에 아닌애들끼리 한번 더 돌려보는건 어떤가
      * 하양여중학교 가 없다면 하양여자중학교로 해보는거지
      */
     public static void main(String[] args) throws Exception {
 
-        //영명고 -> 영명 + 고등학교 -> 적제
-//        Pattern ptrn = Pattern.compile("(.+)학교|(.+)초|(.+)초등학교|(.+)중|(.+)중학교|(.+)고|(.+)고등학교|(.+)대|(.+)대학교");
-//        Matcher matcher = ptrn.matcher("고소하고");
-//        while (matcher.find()) {
-//            System.out.println("zzz : "+matcher.group());
-//        }
-        
 
-//        String strValue = "영명중";
-//
-//        if (strValue.matches("^[가-힣]+초|^[가-힣]+고$")) {
-//            strValue += "등학교";
-//        } else if (strValue.matches("^[가-힣]+중|^[가-힣]+대$")) {
-//            strValue += "학교";
-//        }
-//        System.out.println("strValue : " + strValue);
+        // 실제 학교 세팅
+        setRealSchool();
 
-//        strValue = "Subject: 자바, JavaScript, React, Node.JS";
+        // 파일에서 학교 후보들 색출
+        readTextFromFile();
 
-//        Matcher matcher = Pattern.compile("자바").matcher(strValue);
-//        while (matcher.find()) {
-//            System.out.println("문자열 \"Java\"의 위치: " + matcher.start());
-//        }
-//
-//
-//        Matcher matcher = Pattern.compile("중학교").matcher(strValue);
-//        if (matcher.find()) {
-//            int beginIdx = matcher.start();
-//            System.out.println(strValue.substring(0, beginIdx) + "  " + strValue.substring(beginIdx));
-//            }
+        //list에 실제 학교 몇개있는지 체크
+        countSchoolFromList();
 
+        for ( School school : resultMap.keySet() ) {
+            //TODO : 출력용 메서드 만들까
+            System.out.println(school.getSchoolName()+school.getSchoolGubun().getGubunName() +"    "+resultMap.get(school));
+        }
 
-        List<School> schoolListInCSV = new ArrayList<>();
-        String txtOriginal = "";
-        readTextFromFile(txtOriginal, schoolListInCSV);
         int a = 0;
 
     }
 
 
     /**
-     * 커리어넷 API 이용, 실제 학교 이름 가져오기
-     * API 정보 : https://www.career.go.kr/cnet/front/openapi/openApiSchoolCenter.do
+     * list에서 학교 몇개인지 세기
      */
-    private static void getRealSchools() {
-        try {
-            URL url = new URL("https://www.career.go.kr/cnet/openapi/getOpenApi?apiKey=c40b1a6cb8f89a7111c3314dbfa46bb5&svcType=api&svcCode=SCHOOL&contentType=json&gubun=high_list&perPage=3");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+    private static void countSchoolFromList() {
 
-            conn.setRequestMethod("GET"); // http 메서드
-            conn.setRequestProperty("Content-Type", "application/json"); // header Content-Type 정보
-//            conn.setRequestProperty("auth", "myAuth"); // header의 auth 정보
-            conn.setDoOutput(true); // 서버로부터 받는 값이 있다면 true
-
-            // 서버로부터 데이터 읽어오기
-            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            StringBuilder sb = new StringBuilder();
-            String line = null;
-
-            while ((line = br.readLine()) != null) { // 읽을 수 있을 때 까지 반복
-                sb.append(line);
+        for (School school : schoolListOri) {
+            // resultMap에 있으면 실제 학교 이름임 -> count++;
+            if (existInResult(school)) {
+                plusSchoolCount(school);
             }
+            // resltMap에 없으면 -> 실제 학교 리스트에서 탐색
+            else {
+                findInCarrerList(school);
+            }
+        }
 
-//            MappingChange.Map<String, String> map =  new ObjectMapper().readValue(sb.toString(), MappingChange.Map.class);
-            HashMap<String, Object> dataSearch = (HashMap<String, Object>) new ObjectMapper().readValue(sb.toString(), HashMap.class).get("dataSearch");
 
-//            ArrayList<School> highScools = highSchoolMap.get("dataSearch");
+    }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+
+
+    /**
+     * 이미 학교 그룹화에 속해있는가?
+     * @param school
+     * @return resultMap 에 학교가 있는지 여부
+     */
+    private static boolean existInResult(School school) {
+        return resultMap.containsKey(school);
+    }
+
+
+    /**
+     * 커리어넷 API 이용, 실제 학교 이름 가져오기
+     * API 정보 :
+     */
+    private static void setRealSchool() throws IOException {
+
+        getSchoolByExternalAPI("elem_list", 5000);
+        getSchoolByExternalAPI("midd_list", 5000);
+        getSchoolByExternalAPI("high_list", 5000);
+        getSchoolByExternalAPI("midd_list", 5000);
+        getSchoolByExternalAPI("univ_list", 5000);
+        getSchoolByExternalAPI("seet_list", 500);
+        getSchoolByExternalAPI("alte_list", 5000);
+
+        int a = 0;
+
+
+    }
+
+
+    /**
+     * 커리어 API connection
+     * API 정보 (커리어넷 API 홈페이지) : https://www.career.go.kr/cnet/front/openapi/openApiSchoolCenter.do
+     *
+     * @param schoolType 학교 구분 (초등학교, 중학교, 기타 등)
+     * @param perPage    호출 시 가져올 개수
+     */
+    private static void getSchoolByExternalAPI(String schoolType, int perPage) throws IOException {
+
+        URL url = new URL("https://www.career.go.kr/cnet/openapi/getOpenApi?apiKey=c40b1a6cb8f89a7111c3314dbfa46bb5&svcType=api&svcCode=SCHOOL&contentType=json&gubun=" + schoolType + "&perPage=" + perPage);
+
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        conn.setRequestMethod("GET"); // http 메서드
+        conn.setRequestProperty("Content-Type", "application/json"); // header Content-Type 정보
+        conn.setDoOutput(true); // 서버로부터 받는 값이 있다면 true
+
+        // 서버로부터 데이터 읽어오기
+        BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        StringBuilder sb = new StringBuilder();
+        String line = null;
+
+        while ((line = br.readLine()) != null) { // 읽을 수 있을 때 까지 반복
+            sb.append(line);
+        }
+
+
+        HashMap<String, Object> dataSearch = (HashMap<String, Object>) new ObjectMapper().readValue(sb.toString(), HashMap.class).get("dataSearch");
+        ArrayList<LinkedHashMap<String, String>> schoolList = (ArrayList<LinkedHashMap<String, String>>) dataSearch.get("content");
+
+        for (LinkedHashMap<String, String> schoolMap : schoolList) {
+            // TODO : 학교에 공백이 있다면 제거하고 넣을까?
+            realSchoolSet.add(schoolMap.get("schoolName"));
         }
 
     }
 
+
     /**
      * 텍스트 읽기
      */
-    public static void readTextFromFile(String txt, List<School> schoolListInCSV) throws Exception {
+    public static void readTextFromFile() throws Exception {
 
-//        File fileCSV = new File("/Volumes/T7/dev/kakaobank/src/resources/comments.csv");
-//        File fileTXT = new File("/Volumes/T7/dev/kakaobank/src/resources/comments.csv");
-        File fileCSV = new File("D:\\dev\\works_intellij\\kakaobank\\src\\resources\\tmp.txt"); //여기 상대경로!!
-        File fileTXT = new File("D:\\dev\\works_intellij\\kakaobank\\src\\resources\\tmp.txt");
+        File fileCSV = new File("/Volumes/T7/dev/works_intellij/kakaobank/src/resources/tmp.csv");
+        File fileTXT = new File("/Volumes/T7/dev/works_intellij/kakaobank/src/resources/tmp.txt");
+//        File fileCSV = new File("D:\\dev\\works_intellij\\kakaobank\\src\\resources\\tmp.txt"); //여기 상대경로!!
+//        File fileTXT = new File("D:\\dev\\works_intellij\\kakaobank\\src\\resources\\tmp.txt");
 
         //txt 파일 생성
         Files.copy(fileCSV.toPath(), fileTXT.toPath(), StandardCopyOption.REPLACE_EXISTING);
         Scanner sc = new Scanner(fileTXT, "UTF-8");
         //한줄 씩 읽고
         while (sc.hasNextLine()) {
-
             //어절씩 끊어 읽음
             while (sc.useDelimiter(" ").hasNext()) {
-
-                //공백제거
                 String word = sc.useDelimiter(" ").next();
-//                String word = sc.next().replace(" ", "");
+
+                //빈 문자열이면 contiue
                 if ("".equals(word)) {
                     continue;
                 }
@@ -132,40 +229,36 @@ public class Main {
                 //특수문자 제거
                 word = word.replaceAll("[^ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-9]", "");
 
-//              2글자 이상이면서, 서울구로구개봉중학교서울구로구개봉중학교서울
-                if (word.length() >= 2 && hasSchoolStr(word)) {
-                    makeSchoolObjectInList(word, schoolListInCSV);
+                // 2글자 이상 && 학교 패턴이 포함되어있으면
+                if (word.length() >= 2 && PatternUtils.hasSchoolStr(word)) {
+                    makeSchoolObjectInList(word);
                 }
-//            System.out.println(word);
-//                checkIsSchool(word);
 
             }
-
-
         }
 
     }
 
     /**
-     * 1.
+     * 문자열을 학교 객체로 바꿈 -> 리스트 적재
+     *
+     * @param word 나개봉중학교나아개봉중학교시낭영고래신관초ㅋㅋ (개봉중학교, 영고, 신관초)
      */
-    private static void makeSchoolObjectInList(String word, List<School> schoolListInCSV) throws Exception {
+    private static void makeSchoolObjectInList(String word) throws Exception {
 
-        System.out.println(word);
-
-        // 2글자 (영고) -> 영 + 고등학교 -> 적재
+        // 2글자 (영고)
         if (word.length() == 2) {
+            // 영 + 고등학교 -> 적재
             School school = new School();
             school.addFromTwoWord(word);
+            schoolListOri.add(school);
         } else {
-            //영명고 -> 영명 + 고등학교 -> 적제
+            // 영명고 -> 영명 + 고등학교 -> 적제
             Pattern ptrn = Pattern.compile("(.+)학교|(.+)초|(.+)초등학교|(.+)중|(.+)중학교|(.+)고|(.+)고등학교|(.+)대|(.+)대학교");
             Matcher matcher = ptrn.matcher(word);
             while (matcher.find()) {
-
-                shcoolListOri.add(School.makeSchool(matcher.group()));
+                schoolListOri.add(School.makeSchool(matcher.group()));
             }
-
         }
 
     }
@@ -177,7 +270,7 @@ public class Main {
         //서울구로구개봉중학교서울구로구개봉중학교서울
         //영명중학교서울
 
-        if (hasSchoolStr(word)) {
+        if (PatternUtils.hasSchoolStr(word)) {
             System.out.println(word);
             int cnt;
             if (resultMap.containsKey(word)) {
@@ -186,33 +279,12 @@ public class Main {
             } else {
                 cnt = 1;
             }
-            resultMap.put(word, cnt);
+//            resultMap.put(word, cnt);
 
         }
 
     }
 
-    /**
-     * 학교명이 있는지 정규식 검사
-     */
-    public static boolean hasSchoolStr(String word) {
-        String isSchool = "^[가-힣]+학교.*$"; // *학교
-
-        String isElementary1 = "^[가-힣]+초.*$"; // *초
-        String isElementary2 = "^[가-힣]+초등학교.*$"; // *초등학교
-
-        String isMiddle1 = "^[가-힣]+중.*$"; // *중
-        String isMiddle2 = "^[가-힣]+중학교.*$"; // *중학교
-
-        String isHigh1 = "^[가-힣]+고.*$"; // *고
-        String isHigh2 = "^[가-힣]+고등학교.*$"; // *고등학교
-
-        String isColl1 = "^[가-힣]+대.*$"; // *대
-        String isColl2 = "^[가-힣]+대학교.*$"; // *대학교
-
-        return Pattern.matches(isSchool, word) || Pattern.matches(isElementary1, word) || Pattern.matches(isElementary2, word) || Pattern.matches(isMiddle1, word) || Pattern.matches(isMiddle2, word) || Pattern.matches(isHigh1, word) || Pattern.matches(isHigh2, word) || Pattern.matches(isColl1, word) || Pattern.matches(isColl2, word);
-
-    }
 
 }
 

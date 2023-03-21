@@ -92,7 +92,21 @@ public class Main {
      * 하양여중학교 가 없다면 하양여자중학교로 해보는거지
      */
     public static void main(String[] args) throws Exception {
-
+//        File fileTXT = new File("/Volumes/T7/dev/works_intellij/kakaobank/src/resources/tmp.txt");
+//        Scanner sc = new Scanner(fileTXT, "UTF-8");
+//
+//        while (sc.hasNextLine()) {
+//            String line = sc.nextLine();
+//            String[] words = line.split(" ");
+//            for(String word : words){
+//                System.out.println(word);
+//            }
+//           /* //어절씩 끊어 읽음
+//            while (sc.useDelimiter(" ").hasNext()) {
+//                String word = sc.useDelimiter(" ").next();
+//                System.out.println(word);
+//            }*/
+//        }
 
         // 실제 학교 세팅
         setRealSchool();
@@ -215,11 +229,12 @@ public class Main {
         //txt 파일 생성
         Files.copy(fileCSV.toPath(), fileTXT.toPath(), StandardCopyOption.REPLACE_EXISTING);
         Scanner sc = new Scanner(fileTXT, "UTF-8");
+
         //한줄 씩 읽고
         while (sc.hasNextLine()) {
-            //어절씩 끊어 읽음
-            while (sc.useDelimiter(" ").hasNext()) {
-                String word = sc.useDelimiter(" ").next();
+            String line = sc.nextLine();
+            String[] words = line.split(" ");
+            for (String word : words) {
 
                 //빈 문자열이면 contiue
                 if ("".equals(word)) {
@@ -233,8 +248,8 @@ public class Main {
                 if (word.length() >= 2 && PatternUtils.hasSchoolStr(word)) {
                     makeSchoolObjectInList(word);
                 }
-
             }
+
         }
 
     }

@@ -280,8 +280,7 @@ public class Main {
             schoolListOri.add(school);
         } else {
             // 영명고 -> 영명 + 고등학교 -> 적제
-            // TODO : 진짜동두천여자중학교저희는급식을먹기위해이학교
-//            Pattern ptrn = Pattern.compile("(.+)학교|(.+)초|(.+)초등학교|(.+)중|(.+)중학교|(.+)고|(.+)고등학교|(.+)대|(.+)대학교");
+            //            Pattern ptrn = Pattern.compile("(.+)학교|(.+)초|(.+)초등학교|(.+)중|(.+)중학교|(.+)고|(.+)고등학교|(.+)대|(.+)대학교");
 //            Matcher matcher = ptrn.matcher(word);
 //            while (matcher.find()) {
 //                School school = PatternUtils.makeSchool(matcher.group());

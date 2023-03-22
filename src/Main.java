@@ -42,22 +42,27 @@ public class Main {
             school.setSchoolName(schoolName);
             lengthSchoolName = LENGTH_MAX_SCHOOL_NAME;
         }
-        if("고소하".equals(schoolName)){
-            System.out.println("rhrhrh");
-        }
+
 
         // 뒤에서부터 한글자씩 늘려가며 일치하는 학교가 있나 검사
+        //시나
+        //하시나
+        //각하시나
+        //생각하시나
         // 고영명고 -> 2개 (영명고, 고영명고)
         // TODO : 깊은 복사가 일어나야함!
-        int find = 0;
+
+        int find = 0; //학교 찾았는지 여부
+
         for (int i = 1; i <= lengthSchoolName; i++) {
+            School schoolNew = school.getDeepCopySchool();
             String str = schoolName.substring(schoolName.length() - i, schoolName.length());
-            school.setSchoolName(str);
-            if (existInResult(school)) {
-                plusSchoolCount(school);
+            schoolNew.setSchoolName(str);
+            if (existInResult(schoolNew)) {
+                plusSchoolCount(schoolNew);
                 find = 1;
-            } else if (existInRealSchool(school)) {
-                plusSchoolCount(school);
+            } else if (existInRealSchool(schoolNew)) {
+                plusSchoolCount(schoolNew);
                 find = 1;
             }
         }
@@ -230,7 +235,7 @@ public class Main {
 
 //        File fileCSV = new File("/Volumes/T7/dev/works_intellij/kakaobank/src/resources/tmp.csv");
 //        File fileTXT = new File("/Volumes/T7/dev/works_intellij/kakaobank/src/resources/tmp.txt");
-        File fileCSV = new File("D:\\dev\\works_intellij\\kakaobank\\src\\resources\\tmp.txt"); //여기 상대경로!!
+        File fileCSV = new File("D:\\dev\\works_intellij\\kakaobank\\src\\resources\\tmp.csv"); //여기 상대경로!!
         File fileTXT = new File("D:\\dev\\works_intellij\\kakaobank\\src\\resources\\tmp.txt");
 
         //txt 파일 생성

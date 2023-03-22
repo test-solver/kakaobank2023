@@ -58,10 +58,10 @@ public class School {
                 '}';
     }
 
-    public School deppCopySchool(School original){
+    public School getDeepCopySchool(){
         School copy = new School();
-        copy.schoolName = original.schoolName;
-        copy.schoolGubun = original.getSchoolGubun();
+        copy.schoolName = this.schoolName;
+        copy.schoolGubun = this.getSchoolGubun();
         return copy;
     }
 

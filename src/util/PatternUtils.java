@@ -1,5 +1,9 @@
 package util;
 
+import resources.vo.School;
+import resources.vo.SchoolGubun;
+
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PatternUtils {
@@ -28,4 +32,31 @@ public class PatternUtils {
     }
 
 
+    /**
+     * 영명고 -> schoolName (영명), schoolGubun (고등학교)
+     * 영명고등학교 ->  schoolName (영명), schoolGubun (고등학교)
+     */
+    public static School makeSchool(String str) throws Exception {
+        School school = new School();
+
+        if (str.matches("^[가-힣]+초|^[가-힣]+고$")) {
+            str += "등학교";
+        } else if (str.matches("^[가-힣]+중|^[가-힣]+대$")) {
+            str += "학교";
+        }
+
+        Matcher matcher = Pattern.compile("초등학교|중학교|고등학교|대학교|학교").matcher(str);
+        if (matcher.find()) {
+            int beginIdx = matcher.start();
+//            System.out.println(str.substring(0, beginIdx) + "  " + str.substring(beginIdx ));
+            school.setSchoolGubun(SchoolGubun.getSchoolGubun(str.substring(beginIdx)));
+            school.setSchoolName(str.substring(0, beginIdx));
+        } else{
+            throw  new Exception("unknown string");
+        }
+
+        return school;
+
+
+    }
 }

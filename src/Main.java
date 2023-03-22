@@ -26,26 +26,31 @@ public class Main {
     public static final int LENGTH_MAX_SCHOOL_NAME = 30; //우리나라 학교이름 최대길이 TODO : 커리어에서 가져와서 최대값을 할당해주는건?
     public static Set<String> realSchoolSet = new HashSet<>(); //커리어넷에서 읽어온 진짜 학교
 
-    public static Set<School> schoolListOri = new HashSet<>();
+
+    //TODO: 중복을 허용하지 않을 필요가 있음. 2건 이상 발생해도 하나만 쌓이고있음!
+    public static List<School> schoolListOri = new ArrayList<>();
 
     public static HashMap<School, Integer> resultMap = new HashMap(); // 제시할 정답
-
 
 
     private static void findInCarrerList(School school) {
         // 일단 30글자로 자르기 (학교명이 30글자 이상인 경우는 없음)
         String schoolName = school.getSchoolName();
         int lengthSchoolName = schoolName.length();
-        if(lengthSchoolName >= LENGTH_MAX_SCHOOL_NAME){
+        if (lengthSchoolName >= LENGTH_MAX_SCHOOL_NAME) {
             schoolName = schoolName.substring(schoolName.length() - LENGTH_MAX_SCHOOL_NAME, schoolName.length());
             school.setSchoolName(schoolName);
             lengthSchoolName = LENGTH_MAX_SCHOOL_NAME;
         }
+        if("고소하".equals(schoolName)){
+            System.out.println("rhrhrh");
+        }
 
         // 뒤에서부터 한글자씩 늘려가며 일치하는 학교가 있나 검사
         // 고영명고 -> 2개 (영명고, 고영명고)
+        // TODO : 깊은 복사가 일어나야함!
         int find = 0;
-        for (int i = 1; i < lengthSchoolName; i++) {
+        for (int i = 1; i <= lengthSchoolName; i++) {
             String str = schoolName.substring(schoolName.length() - i, schoolName.length());
             school.setSchoolName(str);
             if (existInResult(school)) {
@@ -66,19 +71,19 @@ public class Main {
 
     /**
      * 우리나라 진짜 학교에 있는지 검사
-     * @param School (학교)ㄴ
+     *
+     * @param School (학교)
      */
     private static boolean existInRealSchool(School school) {
         return realSchoolSet.contains(school.getSchoolName() + school.getSchoolGubun().getGubunName());
     }
 
 
-
-
     /**
      * 학교 회수 카운트 ++
+     *
      * @param School (횟수를 늘릴 학교)
-     * */
+     */
     private static void plusSchoolCount(School school) {
         Integer cnt = resultMap.get(school);
         cnt = cnt == null ? 0 : cnt;
@@ -117,9 +122,11 @@ public class Main {
         //list에 실제 학교 몇개있는지 체크
         countSchoolFromList();
 
-        for ( School school : resultMap.keySet() ) {
+        for (School school : resultMap.keySet()) {
+            School school1 = school;
+            Integer val = resultMap.get(school1);
             //TODO : 출력용 메서드 만들까
-            System.out.println(school.getSchoolName()+school.getSchoolGubun().getGubunName() +"    "+resultMap.get(school));
+            System.out.println(school.getSchoolName() + school.getSchoolGubun().getGubunName() + "    " + resultMap.get(school));
         }
 
         int a = 0;
@@ -147,9 +154,9 @@ public class Main {
     }
 
 
-
     /**
      * 이미 학교 그룹화에 속해있는가?
+     *
      * @param school
      * @return resultMap 에 학교가 있는지 여부
      */
@@ -221,10 +228,10 @@ public class Main {
      */
     public static void readTextFromFile() throws Exception {
 
-        File fileCSV = new File("/Volumes/T7/dev/works_intellij/kakaobank/src/resources/tmp.csv");
-        File fileTXT = new File("/Volumes/T7/dev/works_intellij/kakaobank/src/resources/tmp.txt");
-//        File fileCSV = new File("D:\\dev\\works_intellij\\kakaobank\\src\\resources\\tmp.txt"); //여기 상대경로!!
-//        File fileTXT = new File("D:\\dev\\works_intellij\\kakaobank\\src\\resources\\tmp.txt");
+//        File fileCSV = new File("/Volumes/T7/dev/works_intellij/kakaobank/src/resources/tmp.csv");
+//        File fileTXT = new File("/Volumes/T7/dev/works_intellij/kakaobank/src/resources/tmp.txt");
+        File fileCSV = new File("D:\\dev\\works_intellij\\kakaobank\\src\\resources\\tmp.txt"); //여기 상대경로!!
+        File fileTXT = new File("D:\\dev\\works_intellij\\kakaobank\\src\\resources\\tmp.txt");
 
         //txt 파일 생성
         Files.copy(fileCSV.toPath(), fileTXT.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -272,7 +279,8 @@ public class Main {
             Pattern ptrn = Pattern.compile("(.+)학교|(.+)초|(.+)초등학교|(.+)중|(.+)중학교|(.+)고|(.+)고등학교|(.+)대|(.+)대학교");
             Matcher matcher = ptrn.matcher(word);
             while (matcher.find()) {
-                schoolListOri.add(School.makeSchool(matcher.group()));
+                School school = PatternUtils.makeSchool(matcher.group());
+                schoolListOri.add(school);
             }
         }
 

@@ -50,7 +50,6 @@ public class Main {
         //각하시나
         //생각하시나
         // 고영명고 -> 2개 (영명고, 고영명고)
-        // TODO : 깊은 복사가 일어나야함!
 
         int find = 0; //학교 찾았는지 여부
 
@@ -281,12 +280,25 @@ public class Main {
             schoolListOri.add(school);
         } else {
             // 영명고 -> 영명 + 고등학교 -> 적제
-            Pattern ptrn = Pattern.compile("(.+)학교|(.+)초|(.+)초등학교|(.+)중|(.+)중학교|(.+)고|(.+)고등학교|(.+)대|(.+)대학교");
-            Matcher matcher = ptrn.matcher(word);
+            // TODO : 진짜동두천여자중학교저희는급식을먹기위해이학교
+//            Pattern ptrn = Pattern.compile("(.+)학교|(.+)초|(.+)초등학교|(.+)중|(.+)중학교|(.+)고|(.+)고등학교|(.+)대|(.+)대학교");
+//            Matcher matcher = ptrn.matcher(word);
+//            while (matcher.find()) {
+//                School school = PatternUtils.makeSchool(matcher.group());
+//                schoolListOri.add(school);
+//            }
+
+            String patrnStr =  "초등학교|중학교|고등학교|대학교|.+초|.+중|.+고|.+대";
+            Matcher matcher = Pattern.compile(patrnStr).matcher(word);
+
+            int beginIdx = 0;
+
             while (matcher.find()) {
-                School school = PatternUtils.makeSchool(matcher.group());
+                School school = PatternUtils.makeSchool(word.substring(beginIdx, matcher.end()));
                 schoolListOri.add(school);
+                beginIdx = matcher.end();
             }
+
         }
 
     }

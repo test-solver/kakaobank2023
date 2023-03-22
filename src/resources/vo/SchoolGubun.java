@@ -37,6 +37,7 @@ public enum SchoolGubun {
         }else if(schoolGubun.equals(GENERAL.getGubunName())){
             return GENERAL;
         }else{
+            //TODO:230322 11 56
             throw new Exception("unknown schoolGubun");
         }
 

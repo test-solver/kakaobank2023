@@ -1,11 +1,11 @@
-package resources.vo;
+package vo;
 
 public enum SchoolGubun {
 
     ELEMENTARY("초등학교"),
     MIDDLE("중학교"),
     HIGH("고등학교"),
-    COLL("대학교"),
+    COLL("대학"),
     GENERAL("학교");
 
     private String gubunName;

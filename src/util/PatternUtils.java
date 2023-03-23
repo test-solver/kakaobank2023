@@ -1,7 +1,7 @@
 package util;
 
-import resources.vo.School;
-import resources.vo.SchoolGubun;
+import vo.School;
+import vo.SchoolGubun;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,7 +28,7 @@ public class PatternUtils {
         String isHigh2 = "^["+REGEX_KOREAN+"]+고등학교.*$"; // *고등학교
 
         String isColl1 = "^["+REGEX_KOREAN+"]+대.*$"; // *대
-        String isColl2 = "^["+REGEX_KOREAN+"]+대학교.*$"; // *대학교
+        String isColl2 = "^["+REGEX_KOREAN+"]+대학.*$"; // *대학교
 
         return Pattern.matches(isSchool, word) || Pattern.matches(isElementary1, word) || Pattern.matches(isElementary2, word) || Pattern.matches(isMiddle1, word) || Pattern.matches(isMiddle2, word) || Pattern.matches(isHigh1, word) || Pattern.matches(isHigh2, word) || Pattern.matches(isColl1, word) || Pattern.matches(isColl2, word);
     }
@@ -47,7 +47,7 @@ public class PatternUtils {
             str += "학교";
         }
 
-        Matcher matcher = Pattern.compile("초등학교|중학교|고등학교|대학교|학교").matcher(str);
+        Matcher matcher = Pattern.compile("초등학교|중학교|고등학교|대학|학교").matcher(str);
         if (matcher.find()) {
             int beginIdx = matcher.start();
 //            System.out.println(str.substring(0, beginIdx) + "  " + str.substring(beginIdx ));

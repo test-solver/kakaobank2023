@@ -1,4 +1,4 @@
-package resources.vo;
+package vo;
 
 
 import java.util.Objects;
@@ -115,7 +115,7 @@ public class School {
      * */
     public void setSchoolByRealSchoolName(String schoolFullName) throws Exception {
 
-        Matcher matcher = Pattern.compile("초등학교|중학교|고등학교|대학교|학교").matcher(schoolFullName);
+        Matcher matcher = Pattern.compile("초등학교|중학교|고등학교|대학|학교").matcher(schoolFullName);
         if (matcher.find()) {
             int beginIdx = matcher.start();
             this.setSchoolGubun(SchoolGubun.getSchoolGubun(schoolFullName.substring(beginIdx)));

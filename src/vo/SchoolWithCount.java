@@ -1,4 +1,4 @@
-package resources.vo;
+package vo;
 
 import java.util.Objects;
 

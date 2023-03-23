@@ -1,5 +1,5 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
-import resources.vo.School;
+import vo.School;
 import util.PatternUtils;
 
 import java.io.*;
@@ -30,6 +30,15 @@ public class Main {
 //    TODO: 정규표현식에 자주쓰이는거 따로 선언하자 (ㄱ-ㅎ|ㅏ-ㅣ|가-힣) 이런거
 
 //    TODO : 파일경로 모두 상대경로!
+
+//    TODO: 지금까지 예외 리스트
+    /**
+     *
+     * "인천 ,청라중학교 ? -> 청라중학교로 인식함 (인천 청라중학교 / 청라중학교 다름)
+     *
+     * 명지전문대 -> 명지전문대학교로 검색해서 인식 못함 (명지전문대학 이 맞음)
+     *      => 그렇다면 대학교는 그냥 "대학"으로 할까?
+     * */
 
     private static void findInCareerList(School school) {
         // 일단 30글자로 자르기 (학교명이 30글자 이상인 경우는 없음)
@@ -192,15 +201,13 @@ public class Main {
      */
     private static void setRealSchool() throws IOException {
 
-        getSchoolByExternalAPI("elem_list", 5000);
-        getSchoolByExternalAPI("midd_list", 5000);
-        getSchoolByExternalAPI("high_list", 5000);
-        getSchoolByExternalAPI("midd_list", 5000);
-        getSchoolByExternalAPI("univ_list", 5000);
-        getSchoolByExternalAPI("seet_list", 500);
-        getSchoolByExternalAPI("alte_list", 5000);
-
-        int a = 0;
+        // TODO : schoolType -> enum
+        getSchoolByExternalAPI(ParamCareer.ELEMENTARY);
+        getSchoolByExternalAPI(ParamCareer.MIDDLE);
+        getSchoolByExternalAPI(ParamCareer.HIGH);
+        getSchoolByExternalAPI(ParamCareer.COLL);
+        getSchoolByExternalAPI(ParamCareer.SEET);
+        getSchoolByExternalAPI(ParamCareer.GENERAL);
 
 
     }
@@ -213,9 +220,9 @@ public class Main {
      * @param schoolType 학교 구분 (초등학교, 중학교, 기타 등)
      * @param perPage    호출 시 가져올 개수
      */
-    private static void getSchoolByExternalAPI(String schoolType, int perPage) throws IOException {
+    private static void getSchoolByExternalAPI(ParamCareer paramCareer) throws IOException {
 
-        URL url = new URL("https://www.career.go.kr/cnet/openapi/getOpenApi?apiKey=c40b1a6cb8f89a7111c3314dbfa46bb5&svcType=api&svcCode=SCHOOL&contentType=json&gubun=" + schoolType + "&perPage=" + perPage);
+        URL url = new URL("https://www.career.go.kr/cnet/openapi/getOpenApi?apiKey=c40b1a6cb8f89a7111c3314dbfa46bb5&svcType=api&svcCode=SCHOOL&contentType=json&gubun=" + paramCareer.getTypeName() + "&perPage=" + paramCareer.getPerCnt());
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
@@ -238,7 +245,12 @@ public class Main {
 
         for (LinkedHashMap<String, String> schoolMap : schoolList) {
             // TODO : 학교에 공백이 있다면 제거하고 넣을까?
-            careerSchool.add(schoolMap.get("schoolName"));
+            String schoolName = schoolMap.get("schoolName");
+            // 대학교일 경우 대학교 -> 대학
+            if(paramCareer.equals(ParamCareer.COLL)){
+                schoolName = schoolName.replace("대학교", "대학");
+            }
+            careerSchool.add(schoolName);
         }
 
     }
@@ -305,7 +317,7 @@ public class Main {
 //            }
 
 //            String patrnStr =  "초등학교|중학교|고등학교|대학교|.+초|.+중|.+고|.+대";
-            String patrnStr = "초등학교|중학교|고등학교|대학교|학교|초|중|고|대";
+            String patrnStr = "초등학교|중학교|고등학교|대학|학교|초|중|고|대";
             Matcher matcher = Pattern.compile(patrnStr).matcher(word);
 
             int beginIdx = 0;

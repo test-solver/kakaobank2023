@@ -2,10 +2,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import resources.vo.School;
 import util.PatternUtils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
@@ -24,16 +21,17 @@ public class Main {
      */
 
     public static final int LENGTH_MAX_SCHOOL_NAME = 30; //우리나라 학교이름 최대길이 TODO : 커리어에서 가져와서 최대값을 할당해주는건?
-    public static Set<String> realSchoolSet = new HashSet<>(); //커리어넷에서 읽어온 진짜 학교
+    public static Set<String> careerSchool = new HashSet<>(); //커리어넷에서 읽어온 진짜 학교
 
-
-    //TODO: 중복을 허용하지 않을 필요가 있음. 2건 이상 발생해도 하나만 쌓이고있음!
     public static List<School> schoolListOri = new ArrayList<>();
 
     public static HashMap<School, Integer> resultMap = new HashMap(); // 제시할 정답
+    
+//    TODO: 정규표현식에 자주쓰이는거 따로 선언하자 (ㄱ-ㅎ|ㅏ-ㅣ|가-힣) 이런거
 
+//    TODO : 파일경로 모두 상대경로!
 
-    private static void findInCarrerList(School school) {
+    private static void findInCareerList(School school) {
         // 일단 30글자로 자르기 (학교명이 30글자 이상인 경우는 없음)
         String schoolName = school.getSchoolName();
         int lengthSchoolName = schoolName.length();
@@ -43,33 +41,18 @@ public class Main {
             lengthSchoolName = LENGTH_MAX_SCHOOL_NAME;
         }
 
-
-        // 뒤에서부터 한글자씩 늘려가며 일치하는 학교가 있나 검사
-        //시나
-        //하시나
-        //각하시나
-        //생각하시나
-        // 고영명고 -> 2개 (영명고, 고영명고)
-
-        int find = 0; //학교 찾았는지 여부
+        int find = 0; //문자열에 실제 학교명 포함 여부
 
         for (int i = 1; i <= lengthSchoolName; i++) {
-            School schoolNew = school.getDeepCopySchool();
+            School schoolNew = school.getCopyDeep();
             String str = schoolName.substring(schoolName.length() - i, schoolName.length());
             schoolNew.setSchoolName(str);
-            if (existInResult(schoolNew)) {
+
+            if (isRealSchool(schoolNew)) {
                 plusSchoolCount(schoolNew);
-                find = 1;
-            } else if (existInRealSchool(schoolNew)) {
-                plusSchoolCount(schoolNew);
-                find = 1;
             }
         }
-        //해당 문자열이 학교가 아니라면?
-        //TODO : 예외 처리들 해주자. 한양여 중 -> 한양여자 중 으로 바꿔서 검사해볼것
-        if (find == 0) {
 
-        }
 
     }
 
@@ -78,8 +61,35 @@ public class Main {
      *
      * @param School (학교)
      */
-    private static boolean existInRealSchool(School school) {
-        return realSchoolSet.contains(school.getSchoolName() + school.getSchoolGubun().getGubunName());
+    private static boolean existInCareer(School school) {
+
+        String str = school.getSchoolName() + school.getSchoolGubun().getGubunName();
+        Boolean isExist = careerSchool.contains(str);
+        return isExist;
+    }
+
+    /**
+     * 학교가 맞는지 검사
+     * Career 학교, result 검사
+     */
+    public static Boolean isRealSchool(School school) {
+        Boolean isExist = existInResult(school) || existInCareer(school);
+
+        if (!isExist) {
+            // TODO : 한양여 중학교 -> 한양여자 중학교 변경
+            String regex = "([ㄱ-ㅎ가-힣]+남)|([ㄱ-ㅎ가-힣]+여)";
+            if (school.getSchoolName().matches(regex)) {
+                School school1 = school.getCopyDeep();
+                school1.setSchoolName(school1.getSchoolName() + "자");
+                String str = school1.getSchoolName() + school1.getSchoolGubun().getGubunName();
+                isExist = existInResult(school1) || existInCareer(school1);
+                if(isExist){
+                    school.copyFrom(school1);
+                }
+            }
+        }
+
+        return isExist;
     }
 
 
@@ -101,21 +111,6 @@ public class Main {
      * 하양여중학교 가 없다면 하양여자중학교로 해보는거지
      */
     public static void main(String[] args) throws Exception {
-//        File fileTXT = new File("/Volumes/T7/dev/works_intellij/kakaobank/src/resources/tmp.txt");
-//        Scanner sc = new Scanner(fileTXT, "UTF-8");
-//
-//        while (sc.hasNextLine()) {
-//            String line = sc.nextLine();
-//            String[] words = line.split(" ");
-//            for(String word : words){
-//                System.out.println(word);
-//            }
-//           /* //어절씩 끊어 읽음
-//            while (sc.useDelimiter(" ").hasNext()) {
-//                String word = sc.useDelimiter(" ").next();
-//                System.out.println(word);
-//            }*/
-//        }
 
         // 실제 학교 세팅
         setRealSchool();
@@ -126,14 +121,36 @@ public class Main {
         //list에 실제 학교 몇개있는지 체크
         countSchoolFromList();
 
-        for (School school : resultMap.keySet()) {
-            School school1 = school;
-            Integer val = resultMap.get(school1);
-            //TODO : 출력용 메서드 만들까
-            System.out.println(school.getSchoolName() + school.getSchoolGubun().getGubunName() + "    " + resultMap.get(school));
-        }
+        //결과물 생성
+        printResult();
+
+
 
         int a = 0;
+
+    }
+
+    private static void printResult() throws IOException {
+
+
+
+        File file = new File("D:\\dev\\works_intellij\\kakaobank\\src\\resources\\result.txt");
+
+        // 2. 파일 존재여부 체크 및 생성
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+
+        // 3. Writer 생성
+        FileWriter fw = new FileWriter(file);
+        PrintWriter writer = new PrintWriter(fw);
+
+        // 4. 파일에 쓰기
+        for (School school : resultMap.keySet()) {
+            writer.println(school.getSchoolName() + school.getSchoolGubun().getGubunName() + "\t" + resultMap.get(school));
+        }
+        // 5. PrintWriter close
+        writer.close();
 
     }
 
@@ -150,7 +167,7 @@ public class Main {
             }
             // resltMap에 없으면 -> 실제 학교 리스트에서 탐색
             else {
-                findInCarrerList(school);
+                findInCareerList(school);
             }
         }
 
@@ -221,7 +238,7 @@ public class Main {
 
         for (LinkedHashMap<String, String> schoolMap : schoolList) {
             // TODO : 학교에 공백이 있다면 제거하고 넣을까?
-            realSchoolSet.add(schoolMap.get("schoolName"));
+            careerSchool.add(schoolMap.get("schoolName"));
         }
 
     }
@@ -234,8 +251,8 @@ public class Main {
 
 //        File fileCSV = new File("/Volumes/T7/dev/works_intellij/kakaobank/src/resources/tmp.csv");
 //        File fileTXT = new File("/Volumes/T7/dev/works_intellij/kakaobank/src/resources/tmp.txt");
-        File fileCSV = new File("D:\\dev\\works_intellij\\kakaobank\\src\\resources\\tmp.csv"); //여기 상대경로!!
-        File fileTXT = new File("D:\\dev\\works_intellij\\kakaobank\\src\\resources\\tmp.txt");
+        File fileCSV = new File("D:\\dev\\works_intellij\\kakaobank\\src\\resources\\comments.csv"); //여기 상대경로!!
+        File fileTXT = new File("D:\\dev\\works_intellij\\kakaobank\\src\\resources\\comments.txt");
 
         //txt 파일 생성
         Files.copy(fileCSV.toPath(), fileTXT.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -288,7 +305,7 @@ public class Main {
 //            }
 
 //            String patrnStr =  "초등학교|중학교|고등학교|대학교|.+초|.+중|.+고|.+대";
-            String patrnStr = "초등학교|중학교|고등학교|대학교|초|중|고|대";
+            String patrnStr = "초등학교|중학교|고등학교|대학교|학교|초|중|고|대";
             Matcher matcher = Pattern.compile(patrnStr).matcher(word);
 
             int beginIdx = 0;

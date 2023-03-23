@@ -58,11 +58,23 @@ public class School {
                 '}';
     }
 
-    public School getDeepCopySchool(){
+    /**
+     * Deep Copy
+     * */
+    public School getCopyDeep(){
         School copy = new School();
         copy.schoolName = this.schoolName;
         copy.schoolGubun = this.getSchoolGubun();
         return copy;
+    }
+
+
+    /**
+     * 값을 복사해옴
+     * */
+    public void copyFrom(School copyTarget){
+        this.schoolName = copyTarget.getSchoolName();
+        this.schoolGubun = copyTarget.getSchoolGubun();
     }
 
     /**

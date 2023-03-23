@@ -1,29 +1,39 @@
-import sun.nio.cs.ext.ISO2022_CN_CNS;
-import util.PatternUtils;
-import vo.School;
+import util.Utils;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.io.File;
 
 public class MainTest {
 
     public static void main(String[] args) throws Exception {
+        File file1 = new File("./resources/tmp.csv");
+        File fileCSV = new File("/Volumes/T7/dev/works_intellij/kakaobank/src/resources/comments.csv");
 
-        String[] real = { "명지전문대학", "명지대학교 자연캠퍼스", "명지대학교 인문캠퍼스",  "멋진 명지대학교"};
-//        String[] find = {"명지대학교", "명지대", "명지대학교인문캠"};
-        for(String school :  real){
+        File path = new File(".");
+        System.out.println(System.getProperty("user.dir"));
+        System.out.println(System.getProperty("user.dir")+"/src/resources/comments.csv");
+//        System.out.println(path+"src/resources/comments.csv"); //--> 절대 경로가 출력됨
+        File fileInSamePackage = new File(Utils.getProjectDir()+File.separator+"src"+File.separator+"resources"+File.separator+"comments.csv"); // path 폴더 내의 test.txt 를 가리킨다.
 
-            String patrnStr = "대학교|대학";
-            Matcher matcher = Pattern.compile(patrnStr).matcher(school);
 
-            int beginIdx = 0;
 
-            while (matcher.find()) {
-                String schoolWord = school.substring(beginIdx, matcher.end());
-                System.out.println(schoolWord);
-            }
+        System.out.println(fileInSamePackage.exists());
 
-        }
+
+//        String[] real = { "명지전문대학", "명지대학교 자연캠퍼스", "명지대학교 인문캠퍼스",  "멋진 명지대학교"};
+////        String[] find = {"명지대학교", "명지대", "명지대학교인문캠"};
+//        for(String school :  real){
+//
+//            String patrnStr = "대학교|대학";
+//            Matcher matcher = Pattern.compile(patrnStr).matcher(school);
+//
+//            int beginIdx = 0;
+//
+//            while (matcher.find()) {
+//                String schoolWord = school.substring(beginIdx, matcher.end());
+//                System.out.println(schoolWord);
+//            }
+//
+//        }
 
 //        String str = "학교를고등학교";
 //        Matcher matcher = Pattern.compile("초등학교|중학교|고등학교|대학교|학교").matcher(str);

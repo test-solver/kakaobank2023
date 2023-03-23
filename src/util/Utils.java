@@ -6,9 +6,13 @@ import vo.SchoolGubun;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PatternUtils {
+public class Utils {
 
     public static final String REGEX_KOREAN = "ㄱ-ㅎ|ㅏ-ㅣ|가-힣"; //한글
+
+    public static String getProjectDir(){
+        return System.getProperty("user.dir");
+    }
 
     /**
      * 학교명이 있는지 정규식 검사

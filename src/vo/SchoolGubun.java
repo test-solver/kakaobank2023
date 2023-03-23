@@ -2,15 +2,30 @@ package vo;
 
 public enum SchoolGubun {
 
-    ELEMENTARY("초등학교"),
-    MIDDLE("중학교"),
-    HIGH("고등학교"),
-    COLL("대학"),
-    GENERAL("학교");
+    ELEMENTARY("초등학교", "elem_list", 5000),
+    MIDDLE("중학교", "midd_list", 5000),
+    HIGH("고등학교", "high_list", 5000),
+    COLL("대학", "univ_list", 5000),
+    SEET("학교", "seet_list", 500), //특수학교
+    GENERAL("학교", "alte_list", 5000); //기타
+
 
     private String gubunName;
 
+
+    private int maxLegnth;
+
+    private String paramSchoolName;
+    private int paramPerCnt;
+
     SchoolGubun() {
+    }
+
+    SchoolGubun(String gubunName, String paramSchoolName, int paramPerCnt) {
+        this.gubunName = gubunName;
+        this.maxLegnth = maxLegnth;
+        this.paramSchoolName = paramSchoolName;
+        this.paramPerCnt = paramPerCnt;
     }
 
     SchoolGubun(String gubunName) {
@@ -24,6 +39,39 @@ public enum SchoolGubun {
     public void setGubunName(String gubunName) {
         this.gubunName = gubunName;
     }
+
+    public int getMaxLegnth() {
+        return maxLegnth;
+    }
+
+    public void setMaxLegnth(int maxLegnth) {
+        this.maxLegnth = maxLegnth;
+    }
+
+    public String getParamSchoolName() {
+        return paramSchoolName;
+    }
+
+    public void setParamSchoolName(String paramSchoolName) {
+        this.paramSchoolName = paramSchoolName;
+    }
+
+    public int getParamPerCnt() {
+        return paramPerCnt;
+    }
+
+    public void setParamPerCnt(int paramPerCnt) {
+        this.paramPerCnt = paramPerCnt;
+    }
+
+    @Override
+    public String toString() {
+        return "SchoolGubun{" +
+                "gubunName='" + gubunName + '\'' +
+                ", maxLegnth=" + maxLegnth +
+                '}';
+    }
+
 
     public static SchoolGubun getSchoolGubun(String schoolGubun) throws Exception {
         if(schoolGubun.equals(ELEMENTARY.getGubunName())){

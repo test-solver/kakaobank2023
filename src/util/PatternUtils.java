@@ -43,8 +43,10 @@ public class PatternUtils {
 
         if (str.matches("^.+초|^.+고$")) {
             str += "등학교";
-        } else if (str.matches("^.+중|^.+대$")) {
+        } else if (str.matches("^.+중")) {
             str += "학교";
+        } else if (str.matches("^.+대")) {
+            str += "학";
         }
 
         Matcher matcher = Pattern.compile("초등학교|중학교|고등학교|대학|학교").matcher(str);

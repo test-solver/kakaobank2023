@@ -287,14 +287,18 @@ public class Main {
 //                schoolListOri.add(school);
 //            }
 
-            String patrnStr =  "초등학교|중학교|고등학교|대학교|.+초|.+중|.+고|.+대";
+//            String patrnStr =  "초등학교|중학교|고등학교|대학교|.+초|.+중|.+고|.+대";
+            String patrnStr = "초등학교|중학교|고등학교|대학교|초|중|고|대";
             Matcher matcher = Pattern.compile(patrnStr).matcher(word);
 
             int beginIdx = 0;
 
             while (matcher.find()) {
-                School school = PatternUtils.makeSchool(word.substring(beginIdx, matcher.end()));
-                schoolListOri.add(school);
+                String schoolWord = word.substring(beginIdx, matcher.end());
+                if (schoolWord.length() >= 2) {
+                    School school = PatternUtils.makeSchool(word.substring(beginIdx, matcher.end()));
+                    schoolListOri.add(school);
+                }
                 beginIdx = matcher.end();
             }
 

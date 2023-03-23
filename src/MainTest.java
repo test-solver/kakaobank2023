@@ -57,7 +57,7 @@ public class MainTest {
 //        String word = "서울구로구개봉중학교서울구로구개봉중학교서울구중학교";
 //        String word = "진짜동두천여자중학교저희는급식을먹기위해이학교";
 //        TODO #1 : 산초고 -> 산초고등학교? 산초등학교?
-        String word = "나개중학교나아개봉중학교시낭영고래신관초고ㅋㅋ";
+        String word = "나개중학교나아개봉중학교시낭영고래신관초고ㅋㅋ중중나중";
         String patrnStr =  "초등학교|중학교|고등학교|대학교|초|중|고|대";
 
 //        String[] schools = word.split(patrnStr);

@@ -246,10 +246,21 @@ public class Main {
         for (LinkedHashMap<String, String> schoolMap : schoolList) {
             // TODO : 학교에 공백이 있다면 제거하고 넣을까?
             String schoolName = schoolMap.get("schoolName");
-            // 대학교일 경우 대학교 -> 대학
+            
+            // 대학교일 경우 *대학 or *대학교 로 치환
+            //TODO : 치환할 필요가 있는애들만 검사하는 로직 (대학교 뒤에 글자가 더 있는가? 등)
             if(paramCareer.equals(ParamCareer.COLL)){
-                schoolName = schoolName.replace("대학교", "대학");
+                String patrnStr = "대학교|대학";
+                Matcher matcher = Pattern.compile(patrnStr).matcher(schoolName);
+
+                while (matcher.find()) {
+//                    /System.out.print(schoolName +" -> ");
+                    String schoolWord = schoolName.substring(0, matcher.end());
+//                    System.out.println(schoolWord);
+                    schoolName = schoolWord;
+                }
             }
+
             careerSchool.add(schoolName);
         }
 

@@ -1,22 +1,42 @@
-import util.Utils;
-
-import java.io.File;
+import java.util.logging.*;
 
 public class MainTest {
 
+
     public static void main(String[] args) throws Exception {
-        File file1 = new File("./resources/tmp.csv");
-        File fileCSV = new File("/Volumes/T7/dev/works_intellij/kakaobank/src/resources/comments.csv");
-
-        File path = new File(".");
-        System.out.println(System.getProperty("user.dir"));
-        System.out.println(System.getProperty("user.dir")+"/src/resources/comments.csv");
-//        System.out.println(path+"src/resources/comments.csv"); //--> 절대 경로가 출력됨
-        File fileInSamePackage = new File(Utils.getProjectDir()+File.separator+"src"+File.separator+"resources"+File.separator+"comments.csv"); // path 폴더 내의 test.txt 를 가리킨다.
 
 
 
-        System.out.println(fileInSamePackage.exists());
+
+//        logger = Logger.getLogger("result");
+//        logger.setLevel(Level.ALL);
+//
+//        FileHandler fileHandler = new FileHandler(Utils.getProjectDir() + File.separator + "src" + File.separator + "testResult" + File.separator + "log" + File.separator + "result.log", 1024 * 1024, 10, true);
+//        fileHandler.setLevel(Level.ALL);
+//
+//        SimpleFormatter sformatter = new SimpleFormatter();
+//        fileHandler.setFormatter(sformatter);
+//
+//        logger.addHandler(fileHandler);
+//
+//        logger.log(Level.INFO, "레벨 INFO 로그");
+//        logger.log(Level.WARNING, "레벨 WARNING 로그");
+//        logger.log(Level.SEVERE, "레벨 SEVERE 로그");
+//
+//        logger.log(Level.FINE, "레벨 FINE 로그");
+
+//        File file1 = new File("./resources/tmp.csv");
+//        File fileCSV = new File("/Volumes/T7/dev/works_intellij/kakaobank/src/resources/comments.csv");
+//
+//        File path = new File(".");
+//        System.out.println(System.getProperty("user.dir"));
+//        System.out.println(System.getProperty("user.dir")+"/src/resources/comments.csv");
+////        System.out.println(path+"src/resources/comments.csv"); //--> 절대 경로가 출력됨
+//        File fileInSamePackage = new File(Utils.getProjectDir()+File.separator+"src"+File.separator+"resources"+File.separator+"comments.csv"); // path 폴더 내의 test.txt 를 가리킨다.
+//
+//
+//
+//        System.out.println(fileInSamePackage.exists());
 
 
 //        String[] real = { "명지전문대학", "명지대학교 자연캠퍼스", "명지대학교 인문캠퍼스",  "멋진 명지대학교"};

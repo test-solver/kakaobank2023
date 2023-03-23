@@ -7,11 +7,17 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Main {
 
+
+    // use the classname for the logger, this way you can refactor
+    private final static Logger LOGGER = Logger.getLogger("result");
 
     public static Set<String> careerSchool = new HashSet<>(); //커리어넷에서 읽어온 진짜 학교
 
@@ -110,29 +116,42 @@ public class Main {
      * 없다면 마지막에 아닌애들끼리 한번 더 돌려보는건 어떤가
      * 하양여중학교 가 없다면 하양여자중학교로 해보는거지
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args)  {
 
-        // 실제 학교 세팅
-        setRealSchool();
+        try{
+            //로깅 세팅
+            initializeLog();
 
+            // 실제 학교 세팅
+            setRealSchool();
 
-        // 파일에서 학교 후보들 색출
-        readTextFromFile();
+            // 파일에서 학교 후보들 색출
+            readTextFromFile();
 
-        //list에 실제 학교 몇개있는지 체크
-        countSchoolFromList();
+            //list에 실제 학교 몇개있는지 체크
+            countSchoolFromList();
 
-        //결과물 생성
-        printResult();
+            //결과물 생성
+            printResult();
+            LOGGER.log(Level.INFO, "end success!");
 
+        }catch (Exception e){
+            LOGGER.log(Level.WARNING, e.getMessage());
+        }
 
         int a = 0;
 
     }
 
+    private static void initializeLog() throws IOException {
+        FileHandler fileHandler = new FileHandler( Utils.getProjectDir() + File.separator + "src" + File.separator + "testResult" + File.separator +"result.log");
+        LOGGER.addHandler(fileHandler);
+        LOGGER.info("log initialized");
+    }
+
     private static void printResult() throws IOException {
 
-        File file = new File(Utils.getProjectDir() + File.separator + "src" + File.separator + "resources" + File.separator + "result.txt");
+        File file = new File(Utils.getProjectDir() + File.separator + "src" + File.separator + "testResult" + File.separator + "result.txt");
 
         // 2. 파일 존재여부 체크 및 생성
         if (!file.exists()) {
@@ -190,6 +209,7 @@ public class Main {
      */
     private static void setRealSchool() throws IOException {
 
+        LOGGER.info("carrer API begin");
         // TODO : schoolType -> enum
         getSchoolByExternalAPI(SchoolGubun.ELEMENTARY);
         getSchoolByExternalAPI(SchoolGubun.MIDDLE);
@@ -197,6 +217,8 @@ public class Main {
         getSchoolByExternalAPI(SchoolGubun.COLL);
         getSchoolByExternalAPI(SchoolGubun.SEET);
         getSchoolByExternalAPI(SchoolGubun.GENERAL);
+
+        LOGGER.info("carrer API end successfully");
 
     }
 
@@ -209,6 +231,7 @@ public class Main {
      * @param perPage    호출 시 가져올 개수
      */
     private static void getSchoolByExternalAPI(SchoolGubun schoolGubun) throws IOException {
+
 
         URL url = new URL("https://www.career.go.kr/cnet/openapi/getOpenApi?apiKey=c40b1a6cb8f89a7111c3314dbfa46bb5&svcType=api&svcCode=SCHOOL&contentType=json&gubun=" + schoolGubun.getParamSchoolName() + "&perPage=" + schoolGubun.getParamPerCnt());
 
@@ -257,8 +280,9 @@ public class Main {
             careerSchool.add(schoolName);
         }
 
-        schoolGubun.setMaxLegnth(maxLength);
 
+        schoolGubun.setMaxLegnth(maxLength);
+        LOGGER.info("carrer API "+schoolGubun.getGubunName()+" : "+ schoolList.size());
 
     }
 

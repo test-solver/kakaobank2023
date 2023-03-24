@@ -3,12 +3,12 @@
 
 * 디렉토리 설명
     - result.txt        : 결과물
-    - kakaobank/        : 코드
-        /src/Main.java  : 프로그램 실행
+    - kakaobank         : 코드
         /src/resources  : comments.csv, *.jar
         /src/testResult : 프로그램 실행시 결과물 (result.txt, result.log) 생성
+        /src/util       : 유틸
         /src/vo         : 프로그램 실행시 필요한 객체
-
+        /src/Main.java  : 프로그램 실행
 
 * 알고리즘 설명
     문제 해석

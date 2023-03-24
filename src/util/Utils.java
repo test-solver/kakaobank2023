@@ -6,6 +6,9 @@ import vo.SchoolGubun;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * 기타 유틸
+ * */
 public class Utils {
 
     public static final String REGEX_KOREAN = "ㄱ-ㅎ|ㅏ-ㅣ|가-힣"; //한글

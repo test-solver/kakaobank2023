@@ -1,5 +1,9 @@
 package vo;
 
+/**
+ * 학교 구분값
+ * */
+
 public enum SchoolGubun {
 
     ELEMENTARY("초등학교", "elem_list", 5000),
@@ -85,7 +89,6 @@ public enum SchoolGubun {
         }else if(schoolGubun.equals(GENERAL.getGubunName())){
             return GENERAL;
         }else{
-            //TODO:230322 11 56
             throw new Exception("unknown schoolGubun");
         }
 

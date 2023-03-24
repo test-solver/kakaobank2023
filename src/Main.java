@@ -14,28 +14,75 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Main {
-
-
-    // use the classname for the logger, this way you can refactor
     private final static Logger LOGGER = Logger.getLogger("result");
 
-    public static Set<String> careerSchool = new HashSet<>(); //커리어넷에서 읽어온 진짜 학교
+    public static Set<String> schoolsCareer = new HashSet<>(); //커리어넷에서 읽어온 실제 학교
 
-    public static List<School> schoolListOri = new ArrayList<>();
+    public static List<School> schoolsFromFile = new ArrayList<>(); // comments.csv에서 읽은 학교
 
-    public static HashMap<School, Integer> resultMap = new HashMap(); // 제시할 정답
+    public static HashMap<School, Integer> resultMap = new HashMap(); // 결과물
 
-//    TODO: 정규표현식에 자주쓰이는거 따로 선언하자 (ㄱ-ㅎ|ㅏ-ㅣ|가-힣) 이런거
-
-//    TODO: 지금까지 예외 리스트
 
     /**
-     * "인천 ,청라중학교 ? -> 청라중학교로 인식함 (인천 청라중학교 / 청라중학교 다름)
-     * <p>
-     * 명지전문대 -> 명지전문대학교로 검색해서 인식 못함 (명지전문대학 이 맞음)
-     * => 그렇다면 대학교는 그냥 "대학"으로 할까?
+     * 프로그램 진행 순서
+     * 1. 로깅 세팅
+     * 2. 실제 우리나라 학교 가져오기
+     * 3. comments.csv 에서 학교 후보 단어 탐색
+     * 4. 학교 후보 단어 중 실제 학교 탐색
+     * 5. 결과물 (result.txt) 출력
      */
+    public static void main(String[] args) {
 
+        try {
+            // 1.
+            initializeLog();
+
+            // 2.
+            setRealSchool();
+
+            // 3.
+            readTextFromFile();
+
+            // 4.
+            countSchoolFromList();
+
+            // 5.
+            printResult();
+
+            LOGGER.log(Level.INFO, "end success!");
+
+        } catch (Exception e) {
+            //TODO : 로깅 전반적으로
+            LOGGER.log(Level.WARNING, e.getMessage());
+        }
+
+    }
+
+    private static void initializeLog() throws IOException {
+        //TODO :  로깅파일이 있다면 해당 파일에 쌓기
+        FileHandler fileHandler = new FileHandler(Utils.getProjectDir() + File.separator + "src" + File.separator + "testResult" + File.separator + "result.log");
+
+        LOGGER.addHandler(fileHandler);
+        LOGGER.info("log initialized");
+    }
+
+    /**
+     * 커리어넷 API 이용, 실제 학교 이름 가져오기
+     */
+    private static void setRealSchool() throws IOException {
+
+        LOGGER.info("carrer API begin");
+
+        getSchoolByExternalAPI(SchoolGubun.ELEMENTARY);
+        getSchoolByExternalAPI(SchoolGubun.MIDDLE);
+        getSchoolByExternalAPI(SchoolGubun.HIGH);
+        getSchoolByExternalAPI(SchoolGubun.COLL);
+        getSchoolByExternalAPI(SchoolGubun.SEET);
+        getSchoolByExternalAPI(SchoolGubun.GENERAL);
+
+        LOGGER.info("carrer API end successfully");
+
+    }
     private static void findInCareerList(School school) {
         // 일단 30글자로 자르기 (학교명이 30글자 이상인 경우는 없음)
         String schoolName = school.getSchoolName();
@@ -70,7 +117,7 @@ public class Main {
     private static boolean existInCareer(School school) {
 
         String str = school.getSchoolName() + school.getSchoolGubun().getGubunName();
-        Boolean isExist = careerSchool.contains(str);
+        Boolean isExist = schoolsCareer.contains(str);
         return isExist;
     }
 
@@ -111,43 +158,8 @@ public class Main {
         resultMap.put(school, cnt);
     }
 
-    /**
-     * TODO: 하양여중 -> 하양여 + 중학교로 바뀜 젠장 하양여자 + 중학교로 바뀌어야할텐데...
-     * 없다면 마지막에 아닌애들끼리 한번 더 돌려보는건 어떤가
-     * 하양여중학교 가 없다면 하양여자중학교로 해보는거지
-     */
-    public static void main(String[] args)  {
 
-        try{
-            //로깅 세팅
-            initializeLog();
 
-            // 실제 학교 세팅
-            setRealSchool();
-
-            // 파일에서 학교 후보들 색출
-            readTextFromFile();
-
-            //list에 실제 학교 몇개있는지 체크
-            countSchoolFromList();
-
-            //결과물 생성
-            printResult();
-            LOGGER.log(Level.INFO, "end success!");
-
-        }catch (Exception e){
-            LOGGER.log(Level.WARNING, e.getMessage());
-        }
-
-        int a = 0;
-
-    }
-
-    private static void initializeLog() throws IOException {
-        FileHandler fileHandler = new FileHandler( Utils.getProjectDir() + File.separator + "src" + File.separator + "testResult" + File.separator +"result.log");
-        LOGGER.addHandler(fileHandler);
-        LOGGER.info("log initialized");
-    }
 
     private static void printResult() throws IOException {
 
@@ -177,7 +189,7 @@ public class Main {
      */
     private static void countSchoolFromList() {
 
-        for (School school : schoolListOri) {
+        for (School school : schoolsFromFile) {
             // resultMap에 있으면 실제 학교 이름임 -> count++;
             if (existInResult(school)) {
                 plusSchoolCount(school);
@@ -203,32 +215,14 @@ public class Main {
     }
 
 
-    /**
-     * 커리어넷 API 이용, 실제 학교 이름 가져오기
-     * API 정보 :
-     */
-    private static void setRealSchool() throws IOException {
 
-        LOGGER.info("carrer API begin");
-        // TODO : schoolType -> enum
-        getSchoolByExternalAPI(SchoolGubun.ELEMENTARY);
-        getSchoolByExternalAPI(SchoolGubun.MIDDLE);
-        getSchoolByExternalAPI(SchoolGubun.HIGH);
-        getSchoolByExternalAPI(SchoolGubun.COLL);
-        getSchoolByExternalAPI(SchoolGubun.SEET);
-        getSchoolByExternalAPI(SchoolGubun.GENERAL);
-
-        LOGGER.info("carrer API end successfully");
-
-    }
 
 
     /**
      * 커리어 API connection
      * API 정보 (커리어넷 API 홈페이지) : https://www.career.go.kr/cnet/front/openapi/openApiSchoolCenter.do
      *
-     * @param schoolType 학교 구분 (초등학교, 중학교, 기타 등)
-     * @param perPage    호출 시 가져올 개수
+     * @param schoolGubun : 조회시 사용할 파라미터 정보
      */
     private static void getSchoolByExternalAPI(SchoolGubun schoolGubun) throws IOException {
 
@@ -237,9 +231,9 @@ public class Main {
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
-        conn.setRequestMethod("GET"); // http 메서드
-        conn.setRequestProperty("Content-Type", "application/json"); // header Content-Type 정보
-        conn.setDoOutput(true); // 서버로부터 받는 값이 있다면 true
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoOutput(true);
 
         // 서버로부터 데이터 읽어오기
         BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -256,19 +250,15 @@ public class Main {
 
         int maxLength = 0; //학교의 최대 문자열길이
         for (LinkedHashMap<String, String> schoolMap : schoolList) {
-            // TODO : 학교에 공백이 있다면 제거하고 넣을까?
             String schoolName = schoolMap.get("schoolName");
 
-            // 대학교일 경우 *대학 or *대학교 로 치환
-            //TODO : 치환할 필요가 있는애들만 검사하는 로직 (대학교 뒤에 글자가 더 있는가? 등)
+            // 대학교일 경우 *대학 or *대학교 로 치환 (명지대학교 인문캠퍼스 -> 명지대학교)
             if (schoolGubun.equals(SchoolGubun.COLL)) {
                 String patrnStr = "대학교|대학";
                 Matcher matcher = Pattern.compile(patrnStr).matcher(schoolName);
 
                 while (matcher.find()) {
-//                    /System.out.print(schoolName +" -> ");
                     String schoolWord = schoolName.substring(0, matcher.end());
-//                    System.out.println(schoolWord);
                     schoolName = schoolWord;
                 }
             }
@@ -277,12 +267,12 @@ public class Main {
                 maxLength = schoolName.length();
             }
 
-            careerSchool.add(schoolName);
+            schoolsCareer.add(schoolName);
         }
 
 
         schoolGubun.setMaxLegnth(maxLength);
-        LOGGER.info("carrer API "+schoolGubun.getGubunName()+" : "+ schoolList.size());
+        LOGGER.info("carrer API " + schoolGubun.getGubunName() + " : " + schoolList.size());
 
     }
 
@@ -293,13 +283,6 @@ public class Main {
     public static void readTextFromFile() throws Exception {
 
         File fileCSV = new File(Utils.getProjectDir() + File.separator + "src" + File.separator + "resources" + File.separator + "comments.csv");
-//        File fileCSV = new File("/Volumes/T7/dev/works_intellij/kakaobank/src/resources/comments.csv");
-//        File fileTXT = new File("/Volumes/T7/dev/works_intellij/kakaobank/src/resources/tmp.txt");
-//        File fileCSV = new File("D:\\dev\\works_intellij\\kakaobank\\src\\resources\\comments.csv"); //여기 상대경로!!
-//        File fileTXT = new File("D:\\dev\\works_intellij\\kakaobank\\src\\resources\\comments.txt");
-
-        //txt 파일 생성
-//        Files.copy(fileCSV.toPath(), fileTXT.toPath(), StandardCopyOption.REPLACE_EXISTING);
         Scanner sc = new Scanner(fileCSV, "UTF-8");
 
         //한줄 씩 읽고
@@ -338,7 +321,7 @@ public class Main {
             // 영 + 고등학교 -> 적재
             School school = new School();
             school.addFromTwoWord(word);
-            schoolListOri.add(school);
+            schoolsFromFile.add(school);
         } else {
             // 영명고 -> 영명 + 고등학교 -> 적제
             //            Pattern ptrn = Pattern.compile("(.+)학교|(.+)초|(.+)초등학교|(.+)중|(.+)중학교|(.+)고|(.+)고등학교|(.+)대|(.+)대학교");
@@ -358,7 +341,7 @@ public class Main {
                 String schoolWord = word.substring(beginIdx, matcher.end());
                 if (schoolWord.length() >= 2) {
                     School school = Utils.makeSchool(word.substring(beginIdx, matcher.end()));
-                    schoolListOri.add(school);
+                    schoolsFromFile.add(school);
                 }
                 beginIdx = matcher.end();
             }

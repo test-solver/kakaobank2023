@@ -1,3 +1,6 @@
+* 소스 실행 방법
+    /src/Main.java main() 실행
+
 * 디렉토리 설명
     - result.txt        : 결과물
     - kakaobank/        : 코드

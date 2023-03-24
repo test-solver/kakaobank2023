@@ -2,7 +2,7 @@ package vo;
 
 /**
  * 학교 구분값
- * */
+ */
 
 public enum SchoolGubun {
 
@@ -14,12 +14,17 @@ public enum SchoolGubun {
     GENERAL("학교", "alte_list", 5000); //기타
 
 
+    //학교 종류
     private String gubunName;
 
-
+    //학교 이름 최대 문자열 길이
     private int maxLegnth;
 
+    // 커리어 API 조회 > 파라미터
     private String paramSchoolName;
+
+    // 커리어 API 조회 > 조회할 개수
+
     private int paramPerCnt;
 
     SchoolGubun() {
@@ -78,17 +83,17 @@ public enum SchoolGubun {
 
 
     public static SchoolGubun getSchoolGubun(String schoolGubun) throws Exception {
-        if(schoolGubun.equals(ELEMENTARY.getGubunName())){
+        if (schoolGubun.equals(ELEMENTARY.getGubunName())) {
             return ELEMENTARY;
-        }else if(schoolGubun.equals(MIDDLE.getGubunName())){
+        } else if (schoolGubun.equals(MIDDLE.getGubunName())) {
             return MIDDLE;
-        }else if(schoolGubun.equals(HIGH.getGubunName())){
+        } else if (schoolGubun.equals(HIGH.getGubunName())) {
             return HIGH;
-        }else if(schoolGubun.equals(COLL.getGubunName())){
+        } else if (schoolGubun.equals(COLL.getGubunName())) {
             return COLL;
-        }else if(schoolGubun.equals(GENERAL.getGubunName())){
+        } else if (schoolGubun.equals(GENERAL.getGubunName())) {
             return GENERAL;
-        }else{
+        } else {
             throw new Exception("unknown schoolGubun");
         }
 

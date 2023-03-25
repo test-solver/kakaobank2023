@@ -320,7 +320,7 @@ public class Main {
             school.addFromTwoWord(word);
             schoolsFromFile.add(school);
         } else {
-            String patrnStr = "초등학교|중학교|고등학교|대학|학교|초|중|고|대";
+            String patrnStr = "초등학교|중학교|고등학교|대학교|대학|학교|초|중|고|대";
             Matcher matcher = Pattern.compile(patrnStr).matcher(word);
 
             int beginIdx = 0;

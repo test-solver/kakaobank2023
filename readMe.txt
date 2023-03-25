@@ -1,11 +1,14 @@
-* 소스 실행 방법
+* Java version
+    - java 8
+
+* 프로그램 실행 방법
     /src/Main.java main() 실행
 
 * 디렉토리 설명
     - result.txt        : 결과물
     - kakaobank         : 코드
         /src/resources  : comments.csv, *.jar
-        /src/testResult : 프로그램 실행시 결과물 (result.txt, result.log) 생성
+        /src/testResult : 프로그램 실행 시 결과물 (result.txt, result.log)
         /src/util       : 유틸
         /src/vo         : 프로그램 실행시 필요한 객체
         /src/Main.java  : 프로그램 실행

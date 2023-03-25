@@ -108,24 +108,4 @@ public class School {
 
     }
 
-
-
-
-
-    /**
-     * 학교 이름으로부터 School object 를 만듦
-     * @param schoolName = 가곡고등학교 -> schoolName = 가곡, schoolGubun = 고등학교
-     * */
-    public void setSchoolByRealSchoolName(String schoolFullName) throws Exception {
-
-        Matcher matcher = Pattern.compile("초등학교|중학교|고등학교|대학|학교").matcher(schoolFullName);
-        if (matcher.find()) {
-            int beginIdx = matcher.start();
-            this.setSchoolGubun(SchoolGubun.getSchoolGubun(schoolFullName.substring(beginIdx)));
-            this.setSchoolName(schoolFullName.substring(0, beginIdx));
-        } else{
-            throw  new Exception("no name");
-        }
-
-    }
 }

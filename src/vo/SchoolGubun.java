@@ -1,15 +1,17 @@
 package vo;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
+
 /**
  * 학교 구분값
  */
 
 public enum SchoolGubun {
 
-    ELEMENTARY("초등학교", "elem_list", 5000),
+    ELEMENTARY("초등학교", "elem_list", 8000),
     MIDDLE("중학교", "midd_list", 5000),
     HIGH("고등학교", "high_list", 5000),
-    COLL("대학", "univ_list", 5000),
+    COLL("대학교", "univ_list", 5000),
     SEET("학교", "seet_list", 500), //특수학교
     GENERAL("학교", "alte_list", 5000); //기타
 
@@ -89,7 +91,7 @@ public enum SchoolGubun {
             return MIDDLE;
         } else if (schoolGubun.equals(HIGH.getGubunName())) {
             return HIGH;
-        } else if (schoolGubun.equals(COLL.getGubunName())) {
+        } else if (checkColl(schoolGubun)) {
             return COLL;
         } else if (schoolGubun.equals(GENERAL.getGubunName())) {
             return GENERAL;
@@ -97,6 +99,21 @@ public enum SchoolGubun {
             throw new Exception("unknown schoolGubun");
         }
 
+    }
+
+    /**
+     * schoolGubun이 대학교인지 체크
+     * @param schoolGubun (대학교 or 대학)
+     * @return 대학교 or 대학
+     * */
+    private static boolean checkColl(String schoolGubun) {
+
+        if(schoolGubun.equals(COLL.getGubunName())){
+            return true;
+        }else {
+            // '대학' 인지 체크
+            return  "대학".equals(schoolGubun);
+        }
     }
 
 
